@@ -3,6 +3,7 @@ import json
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
+from django.conf import settings
 
 from .models import ServiceProvider
 from .processors import instantiate_processor, validate_processor_path
@@ -12,6 +13,13 @@ boolean_form_select_choices = ((None, _('--------')), (True, _('Yes')), (False, 
 
 
 class ServiceProviderAdminForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(ServiceProviderAdminForm, self).__init__(*args, **kwargs)
+        if hasattr(settings, 'SAML_IP_DEFAULT_PROCESSOR'):
+            self.fields['_processor'].initial = settings.SAML_IP_DEFAULT_PROCESSOR
+        if hasattr(settings, 'SAML_IP_DEFAULT_ATTRIBUTE_MAPPING'):
+            self.fields['_attribute_mapping'].initial = settings.SAML_IP_DEFAULT_ATTRIBUTE_MAPPING
 
     class Meta:
         model = ServiceProvider
